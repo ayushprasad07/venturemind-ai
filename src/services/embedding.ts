@@ -32,16 +32,25 @@ export async function hfEmbedding(text: string): Promise<number[]> {
 
     if (cache.has(text)) return cache.get(text)!;
 
-    const raw = await client.featureExtraction({
-      model: MODEL,
-      inputs: text
-    });
+    let lastError: any;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const raw = await client.featureExtraction({
+          model: MODEL,
+          inputs: text
+        });
 
-    const vector = normalizeEmbedding(raw);
-
-    cache.set(text, vector);
-
-    return vector;
+        const vector = normalizeEmbedding(raw);
+        cache.set(text, vector);
+        return vector;
+      } catch (error) {
+        lastError = error;
+        console.warn(`HF embedding attempt ${attempt + 1} failed:`, error);
+        await new Promise(r => setTimeout(r, 2000 * Math.pow(2, attempt)));
+      }
+    }
+    console.error("HF embedding failed after 3 attempts:", lastError);
+    throw new Error("Embedding failed");
   } catch (error) {
     console.error("HF embedding error:", error);
     throw new Error("Embedding failed");

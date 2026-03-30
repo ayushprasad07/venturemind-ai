@@ -6,25 +6,31 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ingest": "ts-node src/scripts/ingest.ts"
   },
   "dependencies": {
     "@huggingface/inference": "^4.13.15",
     "@pinecone-database/pinecone": "^7.1.0",
     "axios": "^1.13.6",
     "bcryptjs": "^3.0.3",
+    "fs": "^0.0.1-security",
     "mongoose": "^9.3.0",
     "next": "16.1.6",
     "next-auth": "^4.24.13",
     "nodemailer": "^7.0.13",
+    "papaparse": "^5.5.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/nodemailer": "^7.0.11",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
