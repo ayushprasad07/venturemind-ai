@@ -7,6 +7,8 @@ export interface IdeaI {
   targetUser: string;
   industry: string;
 
+  analysis : string
+
   pineconeId?: string;
 
   embeddingSnippet: number[];
@@ -25,6 +27,7 @@ const IdeaSchema = new mongoose.Schema<IdeaI>(
     problem: { type: String, required: true },
     targetUser: { type: String, required: true },
     industry: { type: String, required: true },
+    analysis : {type : String, required : true},
 
     pineconeId: String,
 
