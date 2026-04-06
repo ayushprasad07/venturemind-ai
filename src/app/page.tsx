@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { SplineScene } from "@/components/ui/splite"
 import { Card } from "@/components/ui/card"
 import { Spotlight } from "@/components/ui/spotlight"
+import { DottedSurface } from "@/components/ui/dotted-surface"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Canvas Sparkles
@@ -67,7 +68,7 @@ function Sparkles({ color = "#ffffff", density = 700 }: { color?: string; densit
   return (
     <canvas
       ref={canvasRef}
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+      className="absolute inset-0 w-full h-full pointer-events-none"
     />
   )
 }
@@ -155,10 +156,6 @@ export default function Home() {
   const [dark, setDark] = useState(true)
   const [hovered, setHovered] = useState<number | null>(null)
   const [ctaHover, setCtaHover] = useState(false)
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [canLeft, setCanLeft] = useState(false)
-  const [canRight, setCanRight] = useState(true)
-  const [scrollPct, setScrollPct] = useState(0)
   const [mounted, setMounted] = useState(false)
 
   // Listen for theme changes from navbar toggle
@@ -200,489 +197,240 @@ export default function Home() {
   }, [])
 
   // ── Derived theme tokens ──
-  const bg = dark ? "#000000" : "#ffffff"
-  const heroBg = dark ? "bg-black/[0.96]" : "bg-white/95"
-  const starColor = dark ? "#ffffff" : "#64748b" // Darker stars for light mode
-  const txt1 = dark ? "#f8fafc" : "#0f172a"
-  const txt2 = dark ? "#94a3b8" : "#475569"
+  const bg = dark ? "bg-black" : "bg-white"
+  const heroBg = dark ? "bg-black/96" : "bg-white/95"
+  const starColor = dark ? "#ffffff" : "#64748b"
+  const txt1 = dark ? "text-slate-50" : "text-slate-900"
+  const txt2 = dark ? "text-slate-400" : "text-slate-600"
   const headingGrad = dark
     ? "from-neutral-50 to-neutral-400"
     : "from-gray-900 to-gray-600"
-  const subText = dark ? "text-neutral-300" : "text-gray-600"
 
   const cardBg = (isHov: boolean) =>
     isHov
-      ? dark ? "rgba(59,130,246,0.07)" : "rgba(59,130,246,0.08)" // Darker background for light mode hover
-      : dark ? "rgba(255,255,255,0.035)" : "rgba(0,0,0,0.03)"
-  const cardBorder = (isHov: boolean, accent: string) =>
-    isHov ? `${accent}99` : dark ? "rgba(59,130,246,0.2)" : "rgba(59,130,246,0.4)" // Darker border for light mode
-
-  const onScroll = () => {
-    const el = scrollRef.current
-    if (!el) return
-    const max = el.scrollWidth - el.clientWidth
-    setCanLeft(el.scrollLeft > 8)
-    setCanRight(el.scrollLeft < max - 8)
-    setScrollPct(max > 0 ? el.scrollLeft / max : 0)
-  }
-
-  const nudge = (dir: number) => {
-    scrollRef.current?.scrollBy({ left: dir * 300, behavior: "smooth" })
-  }
+      ? dark ? "bg-blue-500/10" : "bg-blue-500/10"
+      : dark ? "bg-white/5" : "bg-black/5"
 
   if (!mounted) return null
 
   return (
-    <div
-      style={{ background: bg, transition: "background 0.4s", fontFamily: "'DM Sans','Segoe UI',sans-serif" }}
-      className="min-h-screen"
-    >
-      {/* ══════════════════════════════════════════════════════════════════════
-          HERO — Spline 3D scene (100vh)
-      ══════════════════════════════════════════════════════════════════════ */}
-      <div className="relative w-full h-screen">
-        <Card className={`w-full h-full ${heroBg} relative overflow-hidden border-0 rounded-none transition-colors duration-300`}>
-          <Spotlight
-            className="-top-40 left-0 md:left-60 md:-top-20"
-            fill="currentColor"
-          />
-          <div className="flex h-full flex-col md:flex-row">
-            {/* Left text */}
-            <div className="flex-1 p-6 sm:p-8 md:p-12 relative z-10 flex flex-col justify-center">
-              {/* AI badge - responsive */}
-              <div className="mb-4 sm:mb-5">
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 7,
-                    background: dark ? "rgba(59,130,246,0.14)" : "rgba(59,130,246,0.12)",
-                    border: `1px solid ${dark ? "rgba(59,130,246,0.38)" : "rgba(59,130,246,0.5)"}`,
-                    borderRadius: 999,
-                    padding: "4px 12px sm:4px 14px",
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: dark ? "#93c5fd" : "#2563eb",
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase" as const,
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: "#3b82f6",
-                      boxShadow: "0 0 6px #3b82f6",
-                      display: "inline-block",
-                    }}
-                  />
-                  Powered by AI
-                </span>
-              </div>
-
-              <h1
-                className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-b ${headingGrad}`}
-              >
-                VentureMind-AI
-              </h1>
-
-              <p className={`mt-3 sm:mt-4 ${subText} max-w-lg text-sm sm:text-base lg:text-lg leading-relaxed transition-colors duration-300`}>
-                Discover, validate, and build startup ideas — powered by AI.
-              </p>
-
-              {/* CTA inside hero - responsive */}
-              <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <button
-                  onMouseEnter={() => setCtaHover(true)}
-                  onMouseLeave={() => setCtaHover(false)}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 10,
-                    background: dark 
-                      ? "linear-gradient(135deg,#1d4ed8,#3b82f6)"
-                      : "linear-gradient(135deg,#2563eb,#3b82f6)",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 999,
-                    padding: "13px 28px",
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    boxShadow: ctaHover
-                      ? dark
-                        ? "0 14px 44px rgba(37,99,235,0.58),0 4px 14px rgba(37,99,235,0.38)"
-                        : "0 14px 44px rgba(37,99,235,0.35),0 4px 14px rgba(37,99,235,0.25)"
-                      : dark
-                        ? "0 8px 32px rgba(37,99,235,0.42),0 2px 8px rgba(37,99,235,0.28)"
-                        : "0 8px 32px rgba(37,99,235,0.25),0 2px 8px rgba(37,99,235,0.15)",
-                    transform: ctaHover ? "translateY(-2px)" : "translateY(0)",
-                    transition: "all 0.22s ease",
-                    letterSpacing: "0.01em",
-                  }}
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                  Search startup ideas
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
-                </button>
-                <span style={{ color: txt2, fontSize: 12, transition: "color 0.3s" }}>
-                  No sign-up · No credit card · Results in &lt;3s
-                </span>
-              </div>
-            </div>
-
-            {/* Right — Spline */}
-            <div className="flex-1 relative min-h-[300px] md:min-h-0">
-              <SplineScene
-                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                className="w-full h-full"
-              />
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          FEATURES SECTION — sparkles + horizontal scroll cards
-      ══════════════════════════════════════════════════════════════════════ */}
+    <>
+      <DottedSurface />
       <div
-        style={{
-          position: "relative",
-          overflow: "hidden",
-          background: bg,
-          transition: "background 0.4s",
-        }}
+        className={`min-h-screen relative z-10 transition-colors duration-300 ${bg}`}
+        style={{ fontFamily: "'DM Sans','Segoe UI',sans-serif" }}
       >
-        {/* Sparkles — masked toward center-bottom */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-            zIndex: 0,
-            maskImage: "radial-gradient(ellipse 90% 70% at 50% 85%, white 40%, transparent)",
-            WebkitMaskImage: "radial-gradient(ellipse 90% 70% at 50% 85%, white 40%, transparent)",
-          }}
-        >
-          <Sparkles color={starColor} density={dark ? 650 : 400} />
+        {/* ══════════════════════════════════════════════════════════════════════
+            HERO — Spline 3D scene (100vh)
+        ══════════════════════════════════════════════════════════════════════ */}
+        <div className="relative w-full h-screen">
+          <Card className={`w-full h-full ${heroBg} relative overflow-hidden border-0 rounded-none transition-colors duration-300`}>
+            <Spotlight
+              className="-top-40 left-0 md:left-60 md:-top-20"
+              fill="currentColor"
+            />
+            <div className="flex h-full flex-col md:flex-row">
+              {/* Left text */}
+              <div className="flex-1 p-6 sm:p-8 md:p-12 relative z-10 flex flex-col justify-center">
+                <h1
+                  className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-b ${headingGrad}`}
+                >
+                  VentureMind-AI
+                </h1>
+
+                <p className={`mt-3 sm:mt-4 max-w-lg text-sm sm:text-base lg:text-lg leading-relaxed transition-colors duration-300 ${dark ? "text-neutral-300" : "text-gray-600"}`}>
+                  Discover, validate, and build startup ideas — powered by AI.
+                </p>
+
+                {/* CTA inside hero - responsive */}
+                <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <button
+                    onMouseEnter={() => setCtaHover(true)}
+                    onMouseLeave={() => setCtaHover(false)}
+                    className={`
+                      inline-flex items-center gap-2.5 text-white border-none rounded-full px-7 py-3.5 text-sm font-semibold cursor-pointer
+                      transition-all duration-200 ease-in-out tracking-wide
+                      ${ctaHover ? 'translate-y-[-2px]' : 'translate-y-0'}
+                    `}
+                    style={{
+                      background: dark 
+                        ? "linear-gradient(135deg,#1d4ed8,#3b82f6)"
+                        : "linear-gradient(135deg,#2563eb,#3b82f6)",
+                      boxShadow: ctaHover
+                        ? dark
+                          ? "0 14px 44px rgba(37,99,235,0.58),0 4px 14px rgba(37,99,235,0.38)"
+                          : "0 14px 44px rgba(37,99,235,0.35),0 4px 14px rgba(37,99,235,0.25)"
+                        : dark
+                          ? "0 8px 32px rgba(37,99,235,0.42),0 2px 8px rgba(37,99,235,0.28)"
+                          : "0 8px 32px rgba(37,99,235,0.25),0 2px 8px rgba(37,99,235,0.15)",
+                    }}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    Search startup ideas
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Right — Spline */}
+              <div className="flex-1 relative min-h-[300px] md:min-h-0">
+                <SplineScene
+                  scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                  className="w-full h-full"
+                />
+              </div>
+            </div>
+          </Card>
         </div>
 
-        {/* Blue radial glow - more visible in light mode */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: -100,
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: 1000,
-            height: 460,
-            borderRadius: "50%",
-            background: dark
-              ? "radial-gradient(ellipse,rgba(37,99,235,0.5) 0%,rgba(29,78,216,0.16) 42%,transparent 68%)"
-              : "radial-gradient(ellipse,rgba(37,99,235,0.25) 0%,rgba(59,130,246,0.12) 42%,transparent 68%)",
-            pointerEvents: "none",
-            zIndex: 1,
-            transition: "background 0.4s",
-          }}
-        />
-
-        {/* Horizon arc — top of section as a divider */}
-        <div
-          style={{
-            position: "absolute",
-            top: -2,
-            left: "-30%",
-            width: "160%",
-            height: 120,
-            borderRadius: "0 0 50% 50%",
-            background: bg,
-            borderBottom: dark
-              ? "1px solid rgba(59,130,246,0.3)"
-              : "1px solid rgba(59,130,246,0.5)",
-            pointerEvents: "none",
-            zIndex: 2,
-            transition: "background 0.4s,border-bottom 0.4s",
-          }}
-        />
-
-        {/* Horizon arc — bottom fade */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: -4,
-            left: "-30%",
-            width: "160%",
-            height: 180,
-            borderRadius: "50% 50% 0 0",
-            background: dark ? "#050a14" : "#f8fafc",
-            borderTop: dark
-              ? "1px solid rgba(59,130,246,0.35)"
-              : "1px solid rgba(59,130,246,0.5)",
-            pointerEvents: "none",
-            zIndex: 2,
-            transition: "background 0.4s,border-top 0.4s",
-          }}
-        />
-
-        {/* Content - responsive padding */}
-        <div
-          style={{
-            position: "relative",
-            zIndex: 10,
-            maxWidth: 920,
-            margin: "0 auto",
-            padding: "60px 20px 80px",
-          }}
-          className="px-4 sm:px-6 py-16 sm:py-20 md:py-24"
-        >
-          {/* Section badge */}
-          <div style={{ textAlign: "center", marginBottom: 22 }}>
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 7,
-                background: dark ? "rgba(59,130,246,0.14)" : "rgba(59,130,246,0.12)",
-                border: `1px solid ${dark ? "rgba(59,130,246,0.38)" : "rgba(59,130,246,0.5)"}`,
-                borderRadius: 999,
-                padding: "5px 16px",
-                fontSize: 11,
-                fontWeight: 700,
-                color: dark ? "#93c5fd" : "#2563eb",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-              }}
-            >
-              <span
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: "#3b82f6",
-                  boxShadow: "0 0 6px #3b82f6",
-                  display: "inline-block",
-                }}
-              />
-              What we offer
-            </span>
-          </div>
-
-          {/* Heading - responsive */}
-          <h2
-            style={{
-              textAlign: "center",
-              fontSize: "clamp(24px,5vw,48px)",
-              fontWeight: 700,
-              lineHeight: 1.2,
-              margin: "0 0 16px",
-              color: txt1,
-              letterSpacing: "-0.022em",
-              transition: "color 0.3s",
-            }}
-          >
-            Everything you need to go from
-            <br />
-            <span
-              style={{
-                background: "linear-gradient(90deg,#2563eb,#60a5fa)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              idea to insight in seconds
-            </span>
-          </h2>
-
-          <p
-            style={{
-              textAlign: "center",
-              fontSize: 14,
-              color: txt2,
-              maxWidth: 480,
-              margin: "0 auto 40px",
-              lineHeight: 1.7,
-              transition: "color 0.3s",
-            }}
-            className="text-sm sm:text-base"
-          >
-            No sign-up required. No credit card. Just type your idea and let AI do the rest.
-          </p>
-
-          {/* ── Scroll controls header - responsive ── */}
+        {/* ══════════════════════════════════════════════════════════════════════
+            FEATURES SECTION — Full width grid layout
+        ══════════════════════════════════════════════════════════════════════ */}
+        <div className="relative overflow-hidden transition-colors duration-300">
+          {/* Sparkles — masked toward center-bottom */}
           <div
+            className="absolute inset-0 pointer-events-none z-0"
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: 14,
+              maskImage: "radial-gradient(ellipse 90% 70% at 50% 85%, white 40%, transparent)",
+              WebkitMaskImage: "radial-gradient(ellipse 90% 70% at 50% 85%, white 40%, transparent)",
             }}
           >
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: txt2,
-              }}
-            >
-              Core features
-            </span>
-            <div style={{ display: "flex", gap: 8 }}>
-              {[
-                { dir: -1, label: "←", active: canLeft },
-                { dir: 1, label: "→", active: canRight },
-              ].map(({ dir, label, active }) => (
-                <button
-                  key={dir}
-                  onClick={() => nudge(dir)}
-                  disabled={!active}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: "50%",
-                    border: `1px solid ${dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.15)"}`,
-                    background: active
-                      ? dark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.08)"
-                      : "transparent",
-                    color: active ? txt1 : txt2,
-                    cursor: active ? "pointer" : "default",
-                    opacity: active ? 1 : 0.28,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 15,
-                    transition: "all 0.2s",
-                    padding: 0,
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <Sparkles color={starColor} density={dark ? 650 : 400} />
           </div>
 
-          {/* ── Horizontal scroll strip ── */}
-          <div style={{ position: "relative" }}>
-            {/* Edge fades */}
-            {[
-              { side: "left" as const, on: canLeft, grad: "to right" },
-              { side: "right" as const, on: canRight, grad: "to left" },
-            ].map(({ side, on, grad }) => (
-              <div
-                key={side}
-                style={{
-                  position: "absolute",
-                  [side]: 0,
-                  top: 0,
-                  bottom: 16,
-                  width: 40,
-                  background: `linear-gradient(${grad},${bg},transparent)`,
-                  zIndex: 4,
-                  pointerEvents: "none",
-                  opacity: on ? 1 : 0,
-                  transition: "opacity 0.25s",
-                }}
-              />
-            ))}
+          {/* Blue radial glow - more visible in light mode */}
+          <div
+            className="absolute bottom-[-100px] left-1/2 transform -translate-x-1/2 pointer-events-none z-1 transition-colors duration-300"
+            style={{
+              width: "1000px",
+              height: "460px",
+              borderRadius: "50%",
+              background: dark
+                ? "radial-gradient(ellipse,rgba(37,99,235,0.5) 0%,rgba(29,78,216,0.16) 42%,transparent 68%)"
+                : "radial-gradient(ellipse,rgba(37,99,235,0.25) 0%,rgba(59,130,246,0.12) 42%,transparent 68%)",
+            }}
+          />
 
-            <div
-              ref={scrollRef}
-              onScroll={onScroll}
-              style={{
-                display: "flex",
-                gap: 16,
-                overflowX: "auto",
-                scrollSnapType: "x mandatory",
-                paddingBottom: 16,
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-              }}
+          {/* Horizon arc — top of section as a divider */}
+          <div
+            className="absolute top-[-2px] left-[-30%] w-[160%] h-10 rounded-b-[50%] pointer-events-none z-2 transition-all duration-300"
+            style={{
+              background: dark ? "#000000" : "#ffffff",
+              borderBottom: dark
+                ? "1px solid rgba(59,130,246,0.3)"
+                : "1px solid rgba(59,130,246,0.5)",
+            }}
+          />
+
+          {/* Horizon arc — bottom fade */}
+          <div
+            className="absolute bottom-[-4px] left-[-30%] w-[160%] h-15 rounded-t-[50%] pointer-events-none z-2 transition-all duration-300"
+            style={{
+              background: dark ? "#050a14" : "#f8fafc",
+              borderTop: dark
+                ? "1px solid rgba(59,130,246,0.35)"
+                : "1px solid rgba(59,130,246,0.5)",
+            }}
+          />
+
+          {/* Content - full width */}
+          <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24">
+            {/* Section badge */}
+            <div className="text-center mb-5">
+              <span
+                className={`
+                  inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em]
+                  ${dark ? "bg-blue-500/15 text-blue-300 border-blue-500/40" : "bg-blue-500/15 text-blue-600 border-blue-500/50"}
+                  border
+                `}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_6px_#3b82f6] inline-block"
+                />
+                What we offer
+              </span>
+            </div>
+
+            {/* Heading - responsive */}
+            <h2
+              className={`text-center text-[clamp(24px,5vw,48px)] font-bold leading-tight mb-4 tracking-[-0.022em] transition-colors duration-300 ${txt1}`}
             >
-              {FEATURES.map((f, i) => {
-                const isHov = hovered === i
+              Everything you need to go from
+              <br />
+              <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                idea to insight in seconds
+              </span>
+            </h2>
+
+            
+
+            {/* Features Grid - Full width horizontal layout */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {FEATURES.map((feature, index) => {
+                const isHovered = hovered === index
+                
                 return (
                   <div
-                    key={f.id}
-                    onMouseEnter={() => setHovered(i)}
+                    key={feature.id}
+                    onMouseEnter={() => setHovered(index)}
                     onMouseLeave={() => setHovered(null)}
-                    style={{
-                      flex: "0 0 260px",
-                      scrollSnapAlign: "start",
-                      background: cardBg(isHov),
-                      border: `1px solid ${cardBorder(isHov, f.accent)}`,
-                      borderRadius: 18,
-                      padding: "22px 18px 24px",
-                      cursor: "default",
-                      transition: "all 0.26s ease",
-                      transform: isHov ? "translateY(-5px)" : "translateY(0)",
-                      boxShadow: isHov
-                        ? dark
-                          ? `0 16px 48px -10px ${f.accent}30,0 0 0 1px ${f.accent}18`
-                          : `0 16px 48px -10px ${f.accent}40,0 0 0 1px ${f.accent}30`
-                        : "none",
-                      position: "relative",
-                      overflow: "hidden",
-                    }}
-                    className="sm:flex-0 sm:basis-[272px]"
+                    className={`
+                      group relative rounded-2xl p-6 cursor-default
+                      transition-all duration-300 ease-in-out
+                      ${isHovered ? '-translate-y-1' : 'translate-y-0'}
+                      ${cardBg(isHovered)}
+                      border
+                      ${isHovered ? `border-[${feature.accent}]/60` : dark ? "border-blue-500/20" : "border-blue-500/40"}
+                      ${isHovered && (dark 
+                        ? `shadow-[0_16px_48px_-10px_${feature.accent}30,0_0_0_1px_${feature.accent}18]` 
+                        : `shadow-[0_16px_48px_-10px_${feature.accent}40,0_0_0_1px_${feature.accent}30]`
+                      )}
+                    `}
                   >
                     {/* Corner glow */}
                     <div
+                      className={`absolute -top-10 -right-10 w-30 h-30 rounded-full transition-opacity duration-300 pointer-events-none`}
                       style={{
-                        position: "absolute",
-                        top: -40,
-                        right: -40,
-                        width: 120,
-                        height: 120,
-                        borderRadius: "50%",
-                        background: `radial-gradient(circle,${f.accent}${dark ? '1a' : '30'},transparent 68%)`,
-                        opacity: isHov ? 1 : 0,
-                        transition: "opacity 0.3s",
-                        pointerEvents: "none",
+                        background: `radial-gradient(circle,${feature.accent}${dark ? '1a' : '30'},transparent 68%)`,
+                        opacity: isHovered ? 1 : 0,
                       }}
                     />
 
-                    <div style={{ marginBottom: 16 }}>{f.icon}</div>
+                    {/* Icon */}
+                    <div className="mb-4">
+                      {feature.icon}
+                    </div>
 
-                    <p style={{ color: txt1, fontSize: 15, fontWeight: 650, margin: "0 0 5px", transition: "color 0.3s" }}>
-                      {f.title}
-                    </p>
+                    {/* Title */}
+                    <h3 className={`${txt1} text-lg font-semibold mb-1 transition-colors duration-300`}>
+                      {feature.title}
+                    </h3>
+
+                    {/* Subtitle */}
                     <p
-                      style={{
-                        color: f.accent,
-                        fontSize: 10,
-                        fontWeight: 700,
-                        margin: "0 0 10px",
-                        letterSpacing: "0.05em",
-                        textTransform: "uppercase",
-                      }}
+                      className="text-[11px] font-bold mb-3 uppercase tracking-[0.05em]"
+                      style={{ color: feature.accent }}
                     >
-                      {f.subtitle}
+                      {feature.subtitle}
                     </p>
-                    <p style={{ color: txt2, fontSize: 12.5, lineHeight: 1.68, margin: 0, transition: "color 0.3s" }}>
-                      {f.desc}
+
+                    {/* Description */}
+                    <p className={`${txt2} text-sm leading-relaxed m-0 transition-colors duration-300`}>
+                      {feature.desc}
                     </p>
 
                     {/* Bottom glow accent line */}
                     <div
+                      className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-b-2xl transition-opacity duration-300`}
                       style={{
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        height: 2,
-                        borderRadius: "0 0 18px 18px",
-                        background: `linear-gradient(90deg,transparent,${f.accent},transparent)`,
-                        opacity: isHov ? 0.85 : 0,
-                        transition: "opacity 0.3s",
+                        background: `linear-gradient(90deg,transparent,${feature.accent},transparent)`,
+                        opacity: isHovered ? 0.85 : 0,
                       }}
                     />
                   </div>
@@ -690,31 +438,14 @@ export default function Home() {
               })}
             </div>
           </div>
-
-          {/* Scroll progress bar */}
-          <div
-            style={{
-              height: 3,
-              borderRadius: 999,
-              background: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.12)",
-              marginTop: 8,
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                height: "100%",
-                width: `${Math.round((scrollPct * 0.75 + 0.05) * 100)}%`,
-                borderRadius: 999,
-                background: "linear-gradient(90deg,#2563eb,#60a5fa)",
-                transition: "width 0.15s",
-              }}
-            />
-          </div>
         </div>
-      </div>
 
-      <style>{`div::-webkit-scrollbar{display:none}*{box-sizing:border-box}`}</style>
-    </div>
+        <style>{`
+          * {
+            box-sizing: border-box;
+          }
+        `}</style>
+      </div>
+    </>
   )
 }
