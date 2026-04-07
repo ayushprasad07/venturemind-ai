@@ -8,7 +8,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { signUpSchema } from "@/validator/signupSchema";
-import { on } from "events";
 
 type FormData = z.infer<typeof signUpSchema>;
 

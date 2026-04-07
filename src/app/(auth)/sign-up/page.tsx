@@ -4,6 +4,15 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
+import { signUpSchema } from "@/validator/signupSchema";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+
+type FormData = z.infer<typeof signUpSchema>;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Canvas Sparkles Component
@@ -73,9 +82,64 @@ function Sparkles({ color = "#ffffff", density = 400, dark = true }: { color?: s
   )
 }
 
-export default function SignupFormDemo() {
+// ─────────────────────────────────────────────────────────────────────────────
+// Loader Component
+// ─────────────────────────────────────────────────────────────────────────────
+function Loader({ progress, darkTheme }: { progress: number; darkTheme: boolean }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className={`relative rounded-xl p-8 ${darkTheme ? 'bg-gray-900' : 'bg-white'} shadow-2xl w-80 text-center`}>
+        {/* Spinner */}
+        <div className="relative mx-auto h-16 w-16">
+          <div className="absolute inset-0 rounded-full border-4 border-t-4 border-blue-500/20 border-t-blue-500 animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className={`text-sm font-semibold ${darkTheme ? 'text-white' : 'text-gray-900'}`}>
+              {Math.round(progress)}%
+            </span>
+          </div>
+        </div>
+        
+        {/* Progress Bar */}
+        <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+          <div 
+            className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        
+        {/* Loading Text */}
+        <p className={`mt-3 text-sm ${darkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
+          {progress < 30 && "Creating your account..."}
+          {progress >= 30 && progress < 60 && "Setting up your profile..."}
+          {progress >= 60 && progress < 90 && "Securing your account..."}
+          {progress >= 90 && "Almost there..."}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function SignupForm() {
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+        watch,
+      } = useForm<FormData>({
+        resolver: zodResolver(signUpSchema),
+        mode: "onChange", // This will validate on change
+      })
   const [isMobile, setIsMobile] = useState(false)
   const [darkTheme, setDarkTheme] = useState(true)
+  const [loadingProgress, setLoadingProgress] = useState(0)
+  const [showLoader, setShowLoader] = useState(false)
+  const router = useRouter();
+
+  // Watch form values for debugging
+  const formValues = watch();
+  console.log("Form values:", formValues);
+  console.log("Errors:", errors);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -109,10 +173,59 @@ export default function SignupFormDemo() {
     }
   }, [])
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Form submitted");
-  };
+  const onSubmit = async (data: FormData) => {
+    console.log("Form submitted successfully:", data)
+    
+    // Show loader and reset progress
+    setShowLoader(true)
+    setLoadingProgress(0)
+    
+    // Simulate progress updates
+    const progressInterval = setInterval(() => {
+      setLoadingProgress(prev => {
+        if (prev >= 95) {
+          clearInterval(progressInterval)
+          return 95
+        }
+        return prev + Math.random() * 15
+      })
+    }, 300)
+    
+    try {
+        const response = await axios.post("/api/sign-up", {
+            name: data.name,
+            username: data.username,
+            email: data.email,
+            password: data.password,
+        }, {
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+              setLoadingProgress(percentCompleted)
+            }
+          }
+        })
+
+        // Complete the progress
+        clearInterval(progressInterval)
+        setLoadingProgress(100)
+        
+        // Small delay to show 100% before redirecting
+        setTimeout(() => {
+          setShowLoader(false)
+          if(response.data.success){
+              toast.success(response.data.message)
+              router.push("/verify")
+          }
+        }, 500)
+        
+    } catch (error) {
+        clearInterval(progressInterval)
+        setShowLoader(false)
+        console.log(error)
+        toast.error("Something went wrong. Please try again.")
+    }
+  }
   
   // Theme-based classes
   const bgColor = darkTheme ? "bg-black" : "bg-white"
@@ -127,11 +240,15 @@ export default function SignupFormDemo() {
   const borderAccent = darkTheme ? "border-blue-500/20" : "border-blue-300/40"
   const inputBg = darkTheme ? "bg-black" : "bg-white"
   const inputBorder = darkTheme ? "border-gray-700" : "border-gray-300"
-  const buttonBg = "bg-blue-600"
+  const errorColor = "text-red-500"
+  const buttonBg = darkTheme ? "bg-gradient-to-br from-blue-600 to-blue-700" : "bg-gradient-to-br from-blue-500 to-blue-600"
   const sparkleColor = darkTheme ? "#3b82f6" : "#2563eb"
   
   return (
     <div className={`flex justify-center items-center min-h-screen ${bgColor} p-3 sm:p-4 md:p-6 transition-colors duration-300`}>
+      {/* Loader Overlay */}
+      {showLoader && <Loader progress={loadingProgress} darkTheme={darkTheme} />}
+      
       <div className="w-full max-w-5xl mx-auto">
         {/* Premium Card with Split Layout - Reduced height */}
         <div className={`relative overflow-hidden rounded-xl sm:rounded-2xl ${cardBg} border ${borderColor} shadow-xl sm:shadow-2xl shadow-blue-500/10 transition-all duration-300`}>
@@ -230,18 +347,22 @@ export default function SignupFormDemo() {
             <div className={`p-5 sm:p-6 md:p-8 ${cardBg} transition-colors duration-300`}>
               <div className="mb-4 sm:mb-5 text-center md:text-left">
                 <h2 className={`text-lg sm:text-xl font-bold ${textColor} transition-colors duration-300`}>Create Account</h2>
+                <p className={`text-xs ${textMuted} mt-1`}>Fill in your details to get started</p>
               </div>
               
-              <form className="space-y-3 sm:space-y-4" onSubmit={handleSubmit}>
+              <form className="space-y-3 sm:space-y-4" onSubmit={handleSubmit(onSubmit)}>
                 <LabelInputContainer className="mb-2 sm:mb-3">
                   <Label htmlFor="name" className={`text-xs sm:text-sm font-medium ${textSecondary} transition-colors duration-300`}>Full name</Label>
                   <Input 
                     id="name" 
                     placeholder="John Doe" 
                     type="text" 
-                    name="name"
-                    className={`rounded-lg ${inputBorder} ${inputBg} ${textColor} placeholder:${darkTheme ? "text-gray-500" : "text-gray-400"} focus:border-blue-500 focus:ring-blue-500 text-sm h-9 sm:h-10 transition-colors duration-300`}
+                    {...register("name")}
+                    className={`rounded-lg ${inputBorder} ${inputBg} ${textColor} placeholder:${darkTheme ? "text-gray-500" : "text-gray-400"} focus:border-blue-500 focus:ring-blue-500 text-sm h-9 sm:h-10 transition-colors duration-300 ${errors.name ? 'border-red-500' : ''}`}
                   />
+                  {errors.name && (
+                    <p className={`text-xs ${errorColor} mt-1`}>{errors.name.message}</p>
+                  )}
                 </LabelInputContainer>
                 
                 <LabelInputContainer className="mb-2 sm:mb-3">
@@ -250,9 +371,12 @@ export default function SignupFormDemo() {
                     id="username" 
                     placeholder="johndoe" 
                     type="text" 
-                    name="username"
-                    className={`rounded-lg ${inputBorder} ${inputBg} ${textColor} placeholder:${darkTheme ? "text-gray-500" : "text-gray-400"} focus:border-blue-500 focus:ring-blue-500 text-sm h-9 sm:h-10 transition-colors duration-300`}
+                    {...register("username")}
+                    className={`rounded-lg ${inputBorder} ${inputBg} ${textColor} placeholder:${darkTheme ? "text-gray-500" : "text-gray-400"} focus:border-blue-500 focus:ring-blue-500 text-sm h-9 sm:h-10 transition-colors duration-300 ${errors.username ? 'border-red-500' : ''}`}
                   />
+                  {errors.username && (
+                    <p className={`text-xs ${errorColor} mt-1`}>{errors.username.message}</p>
+                  )}
                 </LabelInputContainer>
                 
                 <LabelInputContainer className="mb-2 sm:mb-3">
@@ -261,9 +385,12 @@ export default function SignupFormDemo() {
                     id="email" 
                     placeholder="john@example.com" 
                     type="email" 
-                    name="email"
-                    className={`rounded-lg ${inputBorder} ${inputBg} ${textColor} placeholder:${darkTheme ? "text-gray-500" : "text-gray-400"} focus:border-blue-500 focus:ring-blue-500 text-sm h-9 sm:h-10 transition-colors duration-300`}
+                    {...register("email")}
+                    className={`rounded-lg ${inputBorder} ${inputBg} ${textColor} placeholder:${darkTheme ? "text-gray-500" : "text-gray-400"} focus:border-blue-500 focus:ring-blue-500 text-sm h-9 sm:h-10 transition-colors duration-300 ${errors.email ? 'border-red-500' : ''}`}
                   />
+                  {errors.email && (
+                    <p className={`text-xs ${errorColor} mt-1`}>{errors.email.message}</p>
+                  )}
                 </LabelInputContainer>
                 
                 <LabelInputContainer className="mb-3 sm:mb-4">
@@ -271,18 +398,22 @@ export default function SignupFormDemo() {
                   <Input 
                     id="password" 
                     placeholder="••••••••" 
-                    type="password" 
-                    name="password"
-                    className={`rounded-lg ${inputBorder} ${inputBg} ${textColor} placeholder:${darkTheme ? "text-gray-500" : "text-gray-400"} focus:border-blue-500 focus:ring-blue-500 text-sm h-9 sm:h-10 transition-colors duration-300`}
+                    type="password"
+                    {...register("password")} 
+                    className={`rounded-lg ${inputBorder} ${inputBg} ${textColor} placeholder:${darkTheme ? "text-gray-500" : "text-gray-400"} focus:border-blue-500 focus:ring-blue-500 text-sm h-9 sm:h-10 transition-colors duration-300 ${errors.password ? 'border-red-500' : ''}`}
                   />
+                  {errors.password && (
+                    <p className={`text-xs ${errorColor} mt-1`}>{errors.password.message}</p>
+                  )}
                 </LabelInputContainer>
 
                 <button
-                    className="group/btn cursor-pointer relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset]"
-                    type="submit"
-                    >
-                    Sign up &rarr;
-                    <BottomGradient />
+                  className="group/btn cursor-pointer relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset]"
+                  type="submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Creating account..." : "Sign up →"}
+                  <BottomGradient />
                 </button>
               </form>
             </div>
@@ -291,7 +422,7 @@ export default function SignupFormDemo() {
       </div>
     </div>
   );
-}
+};
 
 const BottomGradient = () => {
   return (
