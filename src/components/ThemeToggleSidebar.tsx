@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 
-export default function ThemeToggleSidebar() {
+export default function ThemeToggleSidebar({ compact = false }: { compact?: boolean }) {
   const [isDark, setIsDark] = useState<boolean>(false);
 
   const [mounted, setMounted] = useState(false);
@@ -44,6 +44,29 @@ export default function ThemeToggleSidebar() {
   };
 
   if (!mounted) return null;
+
+  if (compact) {
+    return (
+      <button
+        role="switch"
+        aria-checked={isDark}
+        onClick={toggle}
+        className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border transition-colors duration-200 focus:outline-none
+          ${isDark
+            ? "bg-zinc-900 border-zinc-700 dark:bg-white dark:border-white"
+            : "bg-zinc-200 border-zinc-300 dark:bg-zinc-700 dark:border-zinc-600"
+          }`}
+      >
+        <span
+          className={`pointer-events-none inline-block h-3.5 w-3.5 rounded-full transition-transform duration-200 mt-[2px]
+            ${isDark
+              ? "translate-x-[18px] bg-white dark:bg-zinc-900"
+              : "translate-x-[2px] bg-zinc-500 dark:bg-zinc-400"
+            }`}
+        />
+      </button>
+    );
+  }
 
   return (
     <div className="flex items-center justify-between px-2.5 py-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">

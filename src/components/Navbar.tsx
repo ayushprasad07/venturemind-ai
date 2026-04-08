@@ -10,11 +10,13 @@ import {
   MobileNavToggle,
   MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
-import { redirect } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { useState } from "react";
 import ThemeToggle from "./ToggleTheme";
 
 export function NavbarDemo() {
+  const pathname = usePathname();
+
   const navItems = [
     {
       name: "Home",
@@ -35,6 +37,10 @@ export function NavbarDemo() {
   const handleSignup = () => {
     redirect("/sign-up");
   };
+
+  if (pathname && pathname.startsWith("/dashboard")) {
+    return null;
+  }
 
   return (
     <div className="fixed w-full top-10 z-50">

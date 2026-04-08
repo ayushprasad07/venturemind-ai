@@ -5,6 +5,7 @@ import { SplineScene } from "@/components/ui/splite"
 import { Card } from "@/components/ui/card"
 import { Spotlight } from "@/components/ui/spotlight"
 import { DottedSurface } from "@/components/ui/dotted-surface"
+import { Lightbulb, BrainCircuit, LineChart, Code, Rocket, GraduationCap } from "lucide-react"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Canvas Sparkles
@@ -215,7 +216,6 @@ export default function Home() {
 
   return (
     <>
-      <DottedSurface />
       <div
         className={`min-h-screen relative z-10 transition-colors duration-300 ${bg}`}
         style={{ fontFamily: "'DM Sans','Segoe UI',sans-serif" }}
@@ -439,6 +439,148 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            HOW IT WORKS SECTION
+        ══════════════════════════════════════════════════════════════════════ */}
+        <section className={`relative w-full py-24 overflow-hidden border-t transition-colors duration-300 ${dark ? "border-blue-500/10 bg-black" : "border-blue-500/20 bg-white"}`}>
+          <DottedSurface className="absolute inset-0 z-0 opacity-60" />
+          
+          <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16 sm:mb-20">
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] ${dark ? "bg-blue-500/15 text-blue-300 border-blue-500/40" : "bg-blue-500/15 text-blue-600 border-blue-500/50"} border mb-5`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_6px_#3b82f6] inline-block" />
+                Process
+              </span>
+              <h2 className={`text-[clamp(32px,5vw,56px)] font-bold tracking-[-0.022em] transition-colors duration-300 ${txt1}`}>
+                How it works
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 relative">
+              {/* Connecting line for desktop */}
+              <div className="hidden md:block absolute top-[50px] left-[15%] right-[15%] h-[2px] bg-gradient-to-r from-transparent via-blue-500/30 to-transparent z-0" />
+
+              {/* Step 1 */}
+              <div className="relative z-10 flex flex-col items-center text-center group">
+                <div className={`w-24 h-24 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 ${dark ? "bg-black/80 border-white/10" : "bg-white/80 border-blue-100"} border backdrop-blur-md group-hover:-translate-y-2 group-hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)]`}>
+                  <Lightbulb size={40} className="text-blue-500" strokeWidth={1.5} />
+                </div>
+                <div className={`text-[13px] font-bold uppercase tracking-wider text-blue-500 mb-2`}>Step 1</div>
+                <h3 className={`text-xl font-semibold mb-3 ${txt1} transition-colors duration-300`}>Enter Your Idea</h3>
+                <p className={`${txt2} leading-relaxed transition-colors duration-300 max-w-[280px]`}>
+                  Describe your startup idea in simple words
+                </p>
+              </div>
+
+              {/* Step 2 */}
+              <div className="relative z-10 flex flex-col items-center text-center group mt-4 md:mt-0">
+                <div className={`w-24 h-24 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 ${dark ? "bg-black/80 border-white/10" : "bg-white/80 border-blue-100"} border backdrop-blur-md group-hover:-translate-y-2 group-hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)]`}>
+                  <BrainCircuit size={40} className="text-blue-500" strokeWidth={1.5} />
+                </div>
+                <div className={`text-[13px] font-bold uppercase tracking-wider text-blue-500 mb-2`}>Step 2</div>
+                <h3 className={`text-xl font-semibold mb-3 ${txt1} transition-colors duration-300`}>AI Analysis</h3>
+                <p className={`${txt2} leading-relaxed transition-colors duration-300 max-w-[280px]`}>
+                  We convert it into embeddings & search similar startups
+                </p>
+              </div>
+
+              {/* Step 3 */}
+              <div className="relative z-10 flex flex-col items-center text-center group mt-4 md:mt-0">
+                <div className={`w-24 h-24 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 ${dark ? "bg-black/80 border-white/10" : "bg-white/80 border-blue-100"} border backdrop-blur-md group-hover:-translate-y-2 group-hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)]`}>
+                  <LineChart size={40} className="text-blue-500" strokeWidth={1.5} />
+                </div>
+                <div className={`text-[13px] font-bold uppercase tracking-wider text-blue-500 mb-2`}>Step 3</div>
+                <h3 className={`text-xl font-semibold mb-3 ${txt1} transition-colors duration-300`}>Get Insights</h3>
+                <p className={`${txt2} leading-relaxed transition-colors duration-300 max-w-[280px]`}>
+                  Discover competitors, trends, and opportunities
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            WHO IS THIS FOR SECTION
+        ══════════════════════════════════════════════════════════════════════ */}
+        <section className={`relative w-full py-24 overflow-hidden border-t transition-colors duration-300 ${dark ? "border-blue-500/10 bg-black/50" : "border-blue-500/20 bg-slate-50/50"}`}>
+          <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16 sm:mb-20">
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] ${dark ? "bg-blue-500/15 text-blue-300 border-blue-500/40" : "bg-blue-500/15 text-blue-700 border-blue-500/50"} border mb-5`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_6px_#3b82f6] inline-block" />
+                Audience
+              </span>
+              <h2 className={`text-[clamp(32px,5vw,56px)] font-bold tracking-[-0.022em] transition-colors duration-300 ${txt1}`}>
+                Who is this for?
+              </h2>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Card 1 */}
+              <div className={`group relative rounded-3xl p-8 transition-all duration-300 hover:-translate-y-2 border ${dark ? "bg-white/[0.03] border-white/10 hover:border-blue-500/50" : "bg-white border-blue-100 hover:border-blue-400"} hover:shadow-[0_12px_40px_-10px_rgba(59,130,246,0.25)] overflow-hidden backdrop-blur-sm cursor-default`}>
+                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-all duration-700 group-hover:bg-blue-500/30 group-hover:scale-110" />
+                <Code size={40} className="text-blue-500 mb-6 relative z-10" strokeWidth={1.5} />
+                <h3 className={`text-xl font-bold mb-3 ${txt1} relative z-10`}>Indie Hackers</h3>
+                <p className={`${txt2} text-sm leading-relaxed relative z-10`}>Build faster by skipping the noise. Discover profitable niches and validate ideas instantly.</p>
+              </div>
+
+              {/* Card 2 */}
+              <div className={`group relative rounded-3xl p-8 transition-all duration-300 hover:-translate-y-2 border ${dark ? "bg-white/[0.03] border-white/10 hover:border-blue-500/50" : "bg-white border-blue-100 hover:border-blue-400"} hover:shadow-[0_12px_40px_-10px_rgba(59,130,246,0.25)] overflow-hidden backdrop-blur-sm cursor-default`}>
+                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-all duration-700 group-hover:bg-blue-500/30 group-hover:scale-110" />
+                <Rocket size={40} className="text-blue-500 mb-6 relative z-10" strokeWidth={1.5} />
+                <h3 className={`text-xl font-bold mb-3 ${txt1} relative z-10`}>Startup Founders</h3>
+                <p className={`${txt2} text-sm leading-relaxed relative z-10`}>Analyze your competition, find white-space opportunities, and pivot with confidence.</p>
+              </div>
+
+              {/* Card 3 */}
+              <div className={`group relative rounded-3xl p-8 transition-all duration-300 hover:-translate-y-2 border ${dark ? "bg-white/[0.03] border-white/10 hover:border-blue-500/50" : "bg-white border-blue-100 hover:border-blue-400"} hover:shadow-[0_12px_40px_-10px_rgba(59,130,246,0.25)] overflow-hidden backdrop-blur-sm cursor-default`}>
+                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-all duration-700 group-hover:bg-blue-500/30 group-hover:scale-110" />
+                <GraduationCap size={40} className="text-blue-500 mb-6 relative z-10" strokeWidth={1.5} />
+                <h3 className={`text-xl font-bold mb-3 ${txt1} relative z-10`}>Students</h3>
+                <p className={`${txt2} text-sm leading-relaxed relative z-10`}>Research markets for your next big project or thesis without spending hours manually searching.</p>
+              </div>
+
+              {/* Card 4 */}
+              <div className={`group relative rounded-3xl p-8 transition-all duration-300 hover:-translate-y-2 border ${dark ? "bg-white/[0.03] border-white/10 hover:border-blue-500/50" : "bg-white border-blue-100 hover:border-blue-400"} hover:shadow-[0_12px_40px_-10px_rgba(59,130,246,0.25)] overflow-hidden backdrop-blur-sm cursor-default`}>
+                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-all duration-700 group-hover:bg-blue-500/30 group-hover:scale-110" />
+                <Lightbulb size={40} className="text-blue-500 mb-6 relative z-10" strokeWidth={1.5} />
+                <h3 className={`text-xl font-bold mb-3 ${txt1} relative z-10`}>Idea Explorers</h3>
+                <p className={`${txt2} text-sm leading-relaxed relative z-10`}>Constantly brainstorming? Turn your scattered thoughts into structured market insights.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            FOOTER
+        ══════════════════════════════════════════════════════════════════════ */}
+        <footer className={`relative border-t transition-colors duration-300 ${dark ? "border-blue-500/10 bg-black" : "border-blue-500/20 bg-slate-50"}`}>
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className={`flex flex-col md:flex-row items-center justify-between gap-6 ${txt2}`}>
+              <div className="flex items-center gap-2">
+                <span className={`text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r ${dark ? "from-neutral-50 to-neutral-400" : "from-gray-900 to-gray-600"}`}>
+                  VentureMind-AI
+                </span>
+              </div>
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 text-sm">
+                <span>
+                  Made with <span className="text-red-500">❤️</span> by Ayush Prasad
+                </span>
+                <span className="hidden sm:inline opacity-50">•</span>
+                <a 
+                  href="mailto:ayushprasad2110@gmail.com" 
+                  className={`hover:text-blue-500 transition-colors duration-200 ${dark ? "text-blue-400" : "text-blue-600"}`}
+                >
+                  ayushprasad2110@gmail.com
+                </a>
+              </div>
+            </div>
+            <div className={`mt-8 pt-8 border-t flex flex-col sm:flex-row items-center justify-center text-xs opacity-60 text-center ${dark ? "border-white/10" : "border-black/5"}`}>
+              © {new Date().getFullYear()} VentureMind-AI. All rights reserved.
+            </div>
+          </div>
+        </footer>
 
         <style>{`
           * {

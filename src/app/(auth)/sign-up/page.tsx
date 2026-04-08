@@ -215,7 +215,7 @@ export default function SignupForm() {
           setShowLoader(false)
           if(response.data.success){
               toast.success(response.data.message)
-              router.push("/verify")
+              router.push(`/verify/${data.username}`)
           }
         }, 500)
         

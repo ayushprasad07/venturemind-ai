@@ -3,6 +3,9 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Shield } from "lucide-react"
+import axios from "axios"
+import { useParams, useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 interface OTPVerificationProps {
   email?: string
@@ -13,17 +16,19 @@ interface OTPVerificationProps {
 }
 
 export default function OTPVerification({ 
-  email = "jamescarter@gmail.com",
-  onVerify,
   onResend,
   isLoading: externalLoading,
   autoFocus = true
 }: OTPVerificationProps) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]) // Changed to 6 digits
   const [internalLoading, setInternalLoading] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(false) // New state for verification loading
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
-  const isLoading = externalLoading !== undefined ? externalLoading : internalLoading
+  const isLoading = externalLoading !== undefined ? externalLoading : internalLoading || isVerifying
+
+  const paramas = useParams<{ username: string }>();
+  const router = useRouter();
 
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) return
@@ -45,24 +50,47 @@ export default function OTPVerification({
 
   const handleVerify = async () => {
     const otpCode = otp.join("")
-    if (otpCode.length !== 6) return // Changed from 4 to 6
+    if (otpCode.length !== 6) return
 
-    if (onVerify) {
-      console.log("OTP verified:", otpCode)
-      onVerify(otpCode)
-    } else {
-      setInternalLoading(true)
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      setInternalLoading(false)
-      console.log("OTP verified:", otpCode)
+    setIsVerifying(true)
+
+    try {
+      const response = await axios.post("/api/verify-code", {
+        username: paramas.username,
+        verificationToken: otpCode
+      })
+
+      if(response.data.success){
+        toast.success(response.data.message)
+        router.push("/sign-in")
+      } else {
+        toast.error(response.data.message)
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error)
+      toast.error("Error verifying OTP. Please try again.")
+    } finally {
+      setIsVerifying(false)
     }
   }
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (onResend) {
       onResend()
     } else {
-      console.log("Resending OTP...")
+      setInternalLoading(true)
+      try {
+        // Add your resend API call here
+        await axios.post("/api/resend-code", {
+          username: paramas.username
+        })
+        toast.success("Verification code resent successfully!")
+      } catch (error) {
+        console.error("Error resending code:", error)
+        toast.error("Error resending code. Please try again.")
+      } finally {
+        setInternalLoading(false)
+      }
     }
   }
 
@@ -92,11 +120,6 @@ export default function OTPVerification({
               <Shield className="w-6 h-6" />
             </div>
             <h1 className="text-2xl font-semibold text-white mb-3">Enter verification code</h1>
-            <p className="text-white/70 text-sm leading-relaxed">
-              We emailed you a verification code to
-              <br />
-              <span className="text-white font-medium">{email}</span>
-            </p>
           </div>
 
           <div className="flex justify-center gap-2 flex-wrap mb-8">
@@ -121,10 +144,10 @@ export default function OTPVerification({
           <div className="text-center mb-8">
             <button
               onClick={handleVerify}
-              disabled={isLoading || otp.join("").length !== 6} // Changed from 4 to 6
+              disabled={isLoading || otp.join("").length !== 6}
               className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
             >
-              {isLoading ? (
+              {isVerifying ? (
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span>Verifying...</span>
@@ -142,7 +165,14 @@ export default function OTPVerification({
               disabled={isLoading}
               className="text-white/80 hover:text-white text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Resend Code
+              {internalLoading ? (
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Sending...</span>
+                </div>
+              ) : (
+                "Resend Code"
+              )}
             </button>
           </div>
 

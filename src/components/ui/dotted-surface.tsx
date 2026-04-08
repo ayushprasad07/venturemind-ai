@@ -1,179 +1,228 @@
-'use client';
-import { cn } from '@/lib/utils';
-import { useTheme } from 'next-themes';
-import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
+"use client";
 
-type DottedSurfaceProps = Omit<React.ComponentProps<'div'>, 'ref'>;
+import { cn } from "@/lib/utils";
+import React, { useEffect, useRef, useState } from "react";
+import * as THREE from "three";
+
+type DottedSurfaceProps = Omit<React.ComponentProps<"div">, "ref">;
 
 export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
-	const { theme } = useTheme();
+  const [isDark, setIsDark] = useState(true);
 
-	const containerRef = useRef<HTMLDivElement>(null);
-	const sceneRef = useRef<{
-		scene: THREE.Scene;
-		camera: THREE.PerspectiveCamera;
-		renderer: THREE.WebGLRenderer;
-		particles: THREE.Points[];
-		animationId: number;
-		count: number;
-	} | null>(null);
+  // Track the custom theme toggler
+  useEffect(() => {
+    const checkDark = () => document.documentElement.classList.contains("dark");
+    setIsDark(checkDark());
 
-	useEffect(() => {
-		if (!containerRef.current) return;
+    const observer = new MutationObserver(() => {
+      setIsDark(checkDark());
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
-		const SEPARATION = 150;
-		const AMOUNTX = 40;
-		const AMOUNTY = 60;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<{
+    scene: THREE.Scene;
+    camera: THREE.PerspectiveCamera;
+    renderer: THREE.WebGLRenderer;
+    points: THREE.Points;
+    animationId: number;
+  } | null>(null);
 
-		// Scene setup
-		const scene = new THREE.Scene();
-		scene.fog = new THREE.Fog(0xffffff, 2000, 10000);
+  // Initialize Three.js scene only once
+  useEffect(() => {
+    if (!containerRef.current) return;
 
-		const camera = new THREE.PerspectiveCamera(
-			60,
-			window.innerWidth / window.innerHeight,
-			1,
-			10000,
-		);
-		camera.position.set(0, 355, 1220);
+    const SEPARATION = 150;
+    const AMOUNTX = 40;
+    const AMOUNTY = 60;
 
-		const renderer = new THREE.WebGLRenderer({
-			alpha: true,
-			antialias: true,
-		});
-		renderer.setPixelRatio(window.devicePixelRatio);
-		renderer.setSize(window.innerWidth, window.innerHeight);
-		renderer.setClearColor(scene.fog.color, 0);
+    const width = containerRef.current.clientWidth || window.innerWidth;
+    const height = containerRef.current.clientHeight || window.innerHeight;
 
-		containerRef.current.appendChild(renderer.domElement);
+    // Scene setup
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0xffffff, 2000, 10000);
 
-		// Create geometry for all particles
-		const geometry = new THREE.BufferGeometry();
-		const positions: number[] = [];
-		const colors: number[] = [];
+    const camera = new THREE.PerspectiveCamera(
+      60,
+      width / height,
+      1,
+      10000,
+    );
+    camera.position.set(0, 355, 1220);
 
-		for (let ix = 0; ix < AMOUNTX; ix++) {
-			for (let iy = 0; iy < AMOUNTY; iy++) {
-				const x = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2;
-				const y = 0;
-				const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+    });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(width, height);
+    renderer.setClearColor(scene.fog.color, 0);
 
-				positions.push(x, y, z);
-				if (theme === 'dark') {
-					colors.push(200, 200, 200);
-				} else {
-					colors.push(0, 0, 0);
-				}
-			}
-		}
+    containerRef.current.appendChild(renderer.domElement);
 
-		geometry.setAttribute(
-			'position',
-			new THREE.Float32BufferAttribute(positions, 3),
-		);
-		geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    // Create geometry for all particles
+    const geometry = new THREE.BufferGeometry();
+    const positions: number[] = [];
+    const colors: number[] = [];
 
-		// Create material
-		const material = new THREE.PointsMaterial({
-			size: 8,
-			vertexColors: true,
-			transparent: true,
-			opacity: 0.8,
-			sizeAttenuation: true,
-		});
+    // Store initial x and z positions for reference
+    const initialXZ: { x: number; z: number }[] = [];
 
-		// Create points object
-		const points = new THREE.Points(geometry, material);
-		scene.add(points);
+    for (let ix = 0; ix < AMOUNTX; ix++) {
+      for (let iy = 0; iy < AMOUNTY; iy++) {
+        const x = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2;
+        const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
 
-		let count = 0;
-		let animationId: number = 0;
+        positions.push(x, 0, z);
+        initialXZ.push({ x, z });
+        
+        // Set initial colors
+        if (isDark) {
+          colors.push(200 / 255, 200 / 255, 200 / 255);
+        } else {
+          colors.push(0, 0, 0);
+        }
+      }
+    }
 
-		// Animation function
-		const animate = () => {
-			animationId = requestAnimationFrame(animate);
+    geometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(positions, 3),
+    );
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
 
-			const positionAttribute = geometry.attributes.position;
-			const positions = positionAttribute.array as Float32Array;
+    // Create material
+    const material = new THREE.PointsMaterial({
+      size: 8,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.8,
+      sizeAttenuation: true,
+    });
 
-			let i = 0;
-			for (let ix = 0; ix < AMOUNTX; ix++) {
-				for (let iy = 0; iy < AMOUNTY; iy++) {
-					const index = i * 3;
+    // Create points object
+    const points = new THREE.Points(geometry, material);
+    scene.add(points);
 
-					// Animate Y position with sine waves
-					positions[index + 1] =
-						Math.sin((ix + count) * 0.3) * 50 +
-						Math.sin((iy + count) * 0.5) * 50;
+    let frameCount = 0;
+    
+    // Animation function
+    const animate = () => {
+      const animationId = requestAnimationFrame(animate);
 
-					i++;
-				}
-			}
+      const positionAttribute = geometry.attributes.position;
+      const positionsArray = positionAttribute.array as Float32Array;
 
-			positionAttribute.needsUpdate = true;
+      // Update Y positions
+      for (let ix = 0; ix < AMOUNTX; ix++) {
+        for (let iy = 0; iy < AMOUNTY; iy++) {
+          const index = (ix * AMOUNTY + iy) * 3;
+          
+          // Animate Y position with sine waves
+          positionsArray[index + 1] =
+            Math.sin((ix + frameCount) * 0.3) * 50 +
+            Math.sin((iy + frameCount) * 0.5) * 50;
+        }
+      }
 
-			renderer.render(scene, camera);
-			count += 0.1;
-		};
+      positionAttribute.needsUpdate = true;
+      renderer.render(scene, camera);
+      frameCount += 0.1;
+    };
 
-		// Handle window resize
-		const handleResize = () => {
-			camera.aspect = window.innerWidth / window.innerHeight;
-			camera.updateProjectionMatrix();
-			renderer.setSize(window.innerWidth, window.innerHeight);
-		};
+    // Handle container resize
+    const handleResize = () => {
+      if (!containerRef.current) return;
+      const w = containerRef.current.clientWidth;
+      const h = containerRef.current.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
 
-		window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
-		// Start animation
-		animate();
+    const resizeObserver = new ResizeObserver(() => handleResize());
+    resizeObserver.observe(containerRef.current);
 
-		// Store references
-		sceneRef.current = {
-			scene,
-			camera,
-			renderer,
-			particles: [points],
-			animationId,
-			count,
-		};
+    // Start animation
+    animate();
 
-		// Cleanup function
-		return () => {
-			window.removeEventListener('resize', handleResize);
+    // Store references
+    sceneRef.current = {
+      scene,
+      camera,
+      renderer,
+      points,
+      animationId: 0, // We'll store the latest animation ID
+    };
 
-			if (sceneRef.current) {
-				cancelAnimationFrame(sceneRef.current.animationId);
+    // Update the animation ID reference
+    const originalAnimate = animate;
+    
+    // Cleanup function
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
+      
+      // Cancel all animation frames
+      if (sceneRef.current) {
+        // We need to cancel the animation properly
+        cancelAnimationFrame(sceneRef.current.animationId);
+      }
 
-				// Clean up Three.js objects
-				sceneRef.current.scene.traverse((object) => {
-					if (object instanceof THREE.Points) {
-						object.geometry.dispose();
-						if (Array.isArray(object.material)) {
-							object.material.forEach((material) => material.dispose());
-						} else {
-							object.material.dispose();
-						}
-					}
-				});
+      // Clean up Three.js objects
+      geometry.dispose();
+      material.dispose();
+      renderer.dispose();
 
-				sceneRef.current.renderer.dispose();
+      if (containerRef.current && renderer.domElement) {
+        containerRef.current.removeChild(renderer.domElement);
+      }
+    };
+  }, []); // Empty dependency array - only initialize once
 
-				if (containerRef.current && sceneRef.current.renderer.domElement) {
-					containerRef.current.removeChild(
-						sceneRef.current.renderer.domElement,
-					);
-				}
-			}
-		};
-	}, [theme]);
+  // Update colors when theme changes
+  useEffect(() => {
+    if (!sceneRef.current?.points) return;
+    
+    const points = sceneRef.current.points;
+    const geometry = points.geometry;
+    const colorAttribute = geometry.attributes.color;
+    
+    if (!colorAttribute) return;
+    
+    const colorsArray = colorAttribute.array as Float32Array;
+    const AMOUNTX = 40;
+    const AMOUNTY = 60;
+    
+    // Update all particle colors
+    for (let i = 0; i < AMOUNTX * AMOUNTY; i++) {
+      const index = i * 3;
+      if (isDark) {
+        // Light color for dark mode
+        colorsArray[index] = 200 / 255;
+        colorsArray[index + 1] = 200 / 255;
+        colorsArray[index + 2] = 200 / 255;
+      } else {
+        // Dark color for light mode
+        colorsArray[index] = 0;
+        colorsArray[index + 1] = 0;
+        colorsArray[index + 2] = 0;
+      }
+    }
+    
+    colorAttribute.needsUpdate = true;
+  }, [isDark]);
 
-	return (
-		<div
-			ref={containerRef}
-			className={cn('pointer-events-none fixed inset-0 -z-1', className)}
-			{...props}
-		/>
-	);
+  return (
+    <div
+      ref={containerRef}
+      className={cn("pointer-events-none fixed inset-0 -z-1", className)}
+      {...props}
+    />
+  );
 }
