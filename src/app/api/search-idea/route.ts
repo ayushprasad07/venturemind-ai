@@ -104,7 +104,10 @@ export async function POST(req : Request){
         return Response.json({
             success : true,
             message : "Idea saved successfully",
-            data : analysis
+            data : {
+                _id : saveIdea._id,
+                analysis : saveIdea.analysis
+            }
         },{
             status : 200
         })

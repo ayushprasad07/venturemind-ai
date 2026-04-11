@@ -38,7 +38,7 @@ export function NavbarDemo() {
     redirect("/sign-up");
   };
 
-  if (pathname && pathname.startsWith("/dashboard")) {
+  if (pathname && (pathname.startsWith("/dashboard")|| pathname.startsWith("/idea"))) {
     return null;
   }
 
