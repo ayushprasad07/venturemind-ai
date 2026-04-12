@@ -276,4 +276,46 @@
   }
 }
 
+/* Custom responsive breakpoints */
+@layer utilities {
+  /* Extra small devices (phones, 480px and down) */
+  @media (max-width: 480px) {
+    .xs\:inline {
+      display: none;
+    }
+    .xs\:hidden {
+      display: inline;
+    }
+  }
+
+  @media (min-width: 481px) {
+    .xs\:inline {
+      display: inline;
+    }
+    .xs\:hidden {
+      display: none;
+    }
+  }
+
+  /* Touch-friendly tap targets */
+  @media (max-width: 768px) {
+    button, 
+    input,
+    [role="button"] {
+      min-height: 44px;
+      cursor: pointer;
+    }
+    
+    input {
+      font-size: 16px !important; /* Prevents zoom on mobile */
+    }
+  }
+
+  /* Smooth transitions for responsive changes */
+  * {
+    transition-property: padding, margin, font-size, gap;
+    transition-duration: 200ms;
+    transition-timing-function: ease;
+  }
+}
 
